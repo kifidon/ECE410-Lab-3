@@ -1,0 +1,12 @@
+# compile vhdl design source files
+vhdl xil_defaultlib  \
+"../../../../../Downloads/student_resources-20241121T000956Z-001/student_resources/accumulator.vhd" \
+"../../../../../Downloads/student_resources-20241121T000956Z-001/student_resources/alu.vhd" \
+"../../../../../Downloads/student_resources-20241121T000956Z-001/student_resources/mux_4.vhd" \
+"../../../../../Downloads/student_resources-20241121T000956Z-001/student_resources/mux_2.vhd" \
+"../../../../../Downloads/student_resources-20241121T000956Z-001/student_resources/register_file.vhd" \
+"../../../../../Downloads/student_resources-20241121T000956Z-001/student_resources/tri_state_buffer.vhd" \
+"../../../../../Downloads/student_resources-20241121T000956Z-001/student_resources/datapath.vhd" \
+
+# Do not sort compile order
+nosort

@@ -1,0 +1,18 @@
+0.6
+2019.1
+May 24 2019
+15:06:07
+C:/Users/kifidon/410-lab-3/410-lab-3.srcs/sim_1/new/datapath_tb.vhd,1732168104,vhdl,,,,tb_datapath,,,,,,,,
+C:/Users/kifidon/Downloads/student_resources-20241121T000956Z-001/student_resources/accumulator.vhd,1732148359,vhdl,C:/Users/kifidon/Downloads/student_resources-20241121T000956Z-001/student_resources/datapath.vhd,,,accumulator,,,,,,,,
+C:/Users/kifidon/Downloads/student_resources-20241121T000956Z-001/student_resources/accumulator_tb.vhd,1732150609,vhdl,,,,accumulator_tb,,,,,,,,
+C:/Users/kifidon/Downloads/student_resources-20241121T000956Z-001/student_resources/alu.vhd,1732161708,vhdl,C:/Users/kifidon/Downloads/student_resources-20241121T000956Z-001/student_resources/datapath.vhd,,,alu16,,,,,,,,
+C:/Users/kifidon/Downloads/student_resources-20241121T000956Z-001/student_resources/alu_tb.vhd,1732152818,vhdl,,,,alu_tb,,,,,,,,
+C:/Users/kifidon/Downloads/student_resources-20241121T000956Z-001/student_resources/datapath.vhd,1732159676,vhdl,,,,datapath,,,,,,,,
+C:/Users/kifidon/Downloads/student_resources-20241121T000956Z-001/student_resources/mux2_tb.vhd,1732153106,vhdl,,,,mux2_tb,,,,,,,,
+C:/Users/kifidon/Downloads/student_resources-20241121T000956Z-001/student_resources/mux4_tb.vhd,1732153721,vhdl,,,,mux4_tb,,,,,,,,
+C:/Users/kifidon/Downloads/student_resources-20241121T000956Z-001/student_resources/mux_2.vhd,1732153611,vhdl,C:/Users/kifidon/Downloads/student_resources-20241121T000956Z-001/student_resources/datapath.vhd,,,mux2,,,,,,,,
+C:/Users/kifidon/Downloads/student_resources-20241121T000956Z-001/student_resources/mux_4.vhd,1732148359,vhdl,C:/Users/kifidon/Downloads/student_resources-20241121T000956Z-001/student_resources/datapath.vhd,,,mux4,,,,,,,,
+C:/Users/kifidon/Downloads/student_resources-20241121T000956Z-001/student_resources/register_file.vhd,1732148359,vhdl,C:/Users/kifidon/Downloads/student_resources-20241121T000956Z-001/student_resources/datapath.vhd,,,register_file,,,,,,,,
+C:/Users/kifidon/Downloads/student_resources-20241121T000956Z-001/student_resources/register_file_tb.vhd,1732154330,vhdl,,,,register_file_tb,,,,,,,,
+C:/Users/kifidon/Downloads/student_resources-20241121T000956Z-001/student_resources/tri_state_buffer.vhd,1732149607,vhdl,C:/Users/kifidon/Downloads/student_resources-20241121T000956Z-001/student_resources/datapath.vhd,,,tri_state_buffer,,,,,,,,
+C:/Users/kifidon/Downloads/student_resources-20241121T000956Z-001/student_resources/tri_state_buffer_tb.vhd,1732153920,vhdl,,,,tri_state_buffer_tb,,,,,,,,
