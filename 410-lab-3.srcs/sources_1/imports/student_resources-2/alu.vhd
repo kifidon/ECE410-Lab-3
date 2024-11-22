@@ -38,7 +38,7 @@ ARCHITECTURE Dataflow OF alu16 IS
 
 BEGIN
 	PROCESS (A, B, shift_amt, alu_sel)
-	VARIABLE arith_result : UNSIGNED(15 DOWNTO 0);  -- Using a variable here
+	VARIABLE arith_result : UNSIGNED(15 DOWNTO 0);  
 	BEGIN
 --	    variable arith_result : INTEGER;
         overflow <= '0';
@@ -48,43 +48,39 @@ BEGIN
 			WHEN "0010" =>
 				alu_out <= B; -- Pass B
 			WHEN "0011" =>
-				alu_out <= STD_LOGIC_VECTOR(shift_left(unsigned(A), to_integer(unsigned(shift_amt)))); -- Shift left
+				alu_out <= STD_LOGIC_VECTOR(shift_left(unsigned(B), to_integer(unsigned(shift_amt)))); -- Shift left
 			WHEN "0100" =>
-				alu_out <= STD_LOGIC_VECTOR(shift_right(unsigned(A), to_integer(unsigned(shift_amt)))); -- Shift right
+				alu_out <= STD_LOGIC_VECTOR(shift_right(unsigned(B), to_integer(unsigned(shift_amt)))); -- Shift right
 			WHEN "0101" =>
 				arith_result := (unsigned(A) + unsigned(B)); -- ADD
 				IF arith_result < unsigned(A)  THEN 
 					overflow <= '1';
-					arith_result := (OTHERS => '0');  -- Handle OVERFLOW 
 				else 
 					overflow <= '0';
 				END if;
 				alu_out <= STD_LOGIC_VECTOR(arith_result); 
 			WHEN "0110" => -- SUB
+				arith_result := unsigned(A) - unsigned(B);
 				IF unsigned(A) < unsigned(B) THEN
 					overflow <= '1';  -- Set overflow flag (indicating underflow in unsigned context)
-					arith_result := (OTHERS => '0');  -- Handle underflow 
 				ELSE
 					overflow <= '0';
-					arith_result := unsigned(A) - unsigned(B);
 				END IF;
 				alu_out <= STD_LOGIC_VECTOR(arith_result); 
 			WHEN "0111" =>
 				arith_result := (unsigned(A) + 1); -- INC
 				IF arith_result < unsigned(A)  THEN 
 					overflow <= '1';
-					arith_result := (OTHERS => '0');  -- Handle underflow 
 				else 
 					overflow <= '0';
 				END if;
 				alu_out <= STD_LOGIC_VECTOR(arith_result); 
 			WHEN "1000" => -- DEC
+				arith_result := unsigned(A) - 1;
 				IF unsigned(A) = 0 THEN
 					overflow <= '1';  -- Set overflow flag (indicating underflow in unsigned context)
-					arith_result := (OTHERS => '0');  -- Handle underflow 
 				ELSE
 					overflow <= '0';
-					arith_result := unsigned(A) - 1;
 				END IF;
 				alu_out <= STD_LOGIC_VECTOR(arith_result); 
 			

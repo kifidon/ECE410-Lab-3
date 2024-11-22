@@ -130,80 +130,170 @@ BEGIN
         WAIT FOR clk_period;
         reset <= '0';
         WAIT FOR clk_period;
+        
+    -- TEST 1: POPULATE REGISTER FILE 
+        --LOAD ACC 0
+        immediate_data_val     <= X"1111";
+        input_mux_sel          <= "10";
+        acc_mux_sel            <= '0';
+        acc0_write_en          <= '1';
+        acc1_write_en          <= '0';
+        rf_write_en            <= '0';
+        rf_mode_sel            <= '0';
+        rf_address_sel         <= "000";
 
-        -- Test 1: Test input MUX behavior (input_mux_sel) storing in accumulator0
-        acc0_write_en <= '1';
-        acc1_write_en <= '0';
-        usser_input_val <= X"0000"; 
-        immediate_data_val <= X"DCBA";
-        input_mux_sel <= "11";  
-        WAIT FOR clk_period; 
-        ASSERT (sign_out = '0' and zero_out = '1' ) 
+        WAIT FOR clk_period;
+
+        ASSERT (sign_out = '0' and zero_out = '0' ) 
                 REPORT "Mismatch in expected sign/zero value !" 
                 SEVERITY ERROR;
         
-        -- Test 2: store user in acc0
-        usser_input_val <= X"ABCD"; 
-        immediate_data_val <= X"DCDA";
-        input_mux_sel <= "11"; -- select user in
-        alu_mux_sel <= '1'; -- acc0
-        acc_mux_sel <= '0'; -- acc0
-        rf_mode_sel <= '1'; -- Double access      
-        WAIT FOR CLK_PERIOD;
-        ASSERT (sign_out /= '0' and zero_out /= '1' ) 
-                REPORT "Mismatch in expected overflow value !" 
-                SEVERITY ERROR;
-        -- Test Storin in Acc 1  
-        acc0_write_en <= '0';
-        alu1_select <= "0010"; --Pass B: acc0
-        acc1_write_en <= '1';
+        -- LOAD NEXT A AND STORE PREVIOUS A IN REG FILE
+        immediate_data_val     <= X"4444";
+        input_mux_sel          <= "10"; -- IMMED
+        acc_mux_sel            <= '0'; -- ACC0
+        acc0_write_en          <= '1';
+        rf_write_en            <= '1'; 
+        rf_mode_sel            <= '1'; -- SIMD
+        rf_address_sel         <= "000"; -- 0 AND 4
+        output_en              <= '1'; 
+        WAIT FOR clk_period;
 
---        alu1_select <= "0100"; -- SHIFT RIGHT: TO STORE IN ACC1 on next clock cycle
-        -- can't read+write in 1 cycle
-        alu_mux_sel <= '1'; -- to acc0
-        rf_write_en <= '1'; -- STORE acc0 in REGISTER FILE 0 and 4
-        WAIT FOR CLK_PERIOD;
-        acc1_write_en <= '0';
-        alu0_select <= "0101"; -- ADD: SHOULD CAUSE OVERFLOW 
-        alu1_select <= "0100"; -- shift right
-        alu1_shift <= X"4";
-        rf_write_en <= '0'; -- Read Mode 
-        WAIT FOR CLK_PERIOD;
-         ASSERT (alu0_overflow = '1') 
-                REPORT "Mismatch in expected overflow value !" 
+        -- LOAD NEXT A AND STORE PREVIOUS A IN REG FILE
+        immediate_data_val     <= X"8888";
+        input_mux_sel          <= "10"; -- IMMED
+        acc_mux_sel            <= '0'; -- ACC0
+        acc0_write_en          <= '1';
+        rf_write_en            <= '1'; 
+        rf_mode_sel            <= '1'; -- SIMD
+        rf_address_sel         <= "001"; -- 1 AND 5
+        WAIT FOR clk_period;
+
+        -- LOAD NEXT A AND STORE PREVIOUS A IN REG FILE
+        immediate_data_val     <= X"FFFF";
+        input_mux_sel          <= "10"; -- IMMED
+        acc_mux_sel            <= '0'; -- ACC0
+        acc0_write_en          <= '1';
+        rf_write_en            <= '1'; 
+        rf_mode_sel            <= '1'; -- SIMD
+        rf_address_sel         <= "010"; -- 2 AND 6
+        WAIT FOR clk_period;
+
+        -- STORE LAST IMMEDIATE 
+        immediate_data_val     <= X"0000"; -- 
+        input_mux_sel          <= "00"; 
+        acc_mux_sel            <= '0'; -- ACC0
+        acc0_write_en          <= '0';
+        rf_write_en            <= '1'; 
+        rf_mode_sel            <= '1'; -- SIMD
+        rf_address_sel         <= "111"; -- 7 AND 3
+        WAIT FOR clk_period;
+        ASSERT (output_buffer = X'FFFF') 
+                REPORT "Mismatch in expected output value !" 
                 SEVERITY ERROR;
---        alu0_select <= "0101"; -- add
---        WAIT FOR clk_period;
-        -- store acc1 
-        acc1_write_en <= '1'; 
-        alu0_select <= "0001";-- Pass A: rf0_out;
-        input_mux_sel <= "01"; -- rf0_out;
-        usser_input_val <= X"1234"; -- User in can change without affecting acc0 in
-        rf_write_en <= '0';
-        rf_mode_sel <= '1'; -- Double acces mode
-        acc_mux_sel <= '1'; -- acc 1
-        WAIT FOR CLK_PERIOD;
-        rf_write_en <= '1'; -- stroe acc 1 in register file 4
-        acc1_write_en <= '0';
-        WAIT FOR CLK_PERIOD;
-        rf_mode_sel <= '0';
-        rf_address_sel <= "100";
-        rf_write_en <= '0'; -- Update outputs;
-        WAIT FOR CLK_PERIOD;
-        acc0_write_en <= '1';  
-        output_en <= '1';
---        WAIT FOR CLK_PERIOD
-        WAIT FOR CLK_PERIOD*2;
+
+        --update register outputs for next test 
+        input_mux_sel          <= "00"; 
+        acc_mux_sel            <= '0'; -- ACC0
+        acc0_write_en          <= '0';
+        rf_write_en            <= '0'; 
+        rf_mode_sel            <= '0';
+        rf_address_sel         <= "011"; -- 3
+        WAIT FOR clk_period;
         
-        
-        RESET <= '1';
-        --OUTPUT SHOULD BE THE RIGHT SHIFTED VALUE OF THE ORIGINAL INPUT X"ABCD". FOR TESTING
-        -- I PASSED THE VALUE TO ALU1, SHIFTED IT, STORED ACC1 AND THEN IN THE REGISTER FILE
-        -- WHILE ACC0 COMPUTED OTHER TASKS: ADDING THE INPUT VALUE AGAINST ITSELF BY STORING IT IN REGFILE AND THEN 
-        -- USEING THE ALU_MUX TO SELECT ACC0 FOR ALLU0. THE PURPOSE OF THIS WAS TO TEST THE OVERFLOW FLAG .
-        -- THEN OBTAINED THE RESULT AND OUTPUT TO THE TSB ON THE NEXT RIZING CLOCK EDGE.
-        
+    -- Test 2: Check for overflow on alu operations    
+        alu_mux_sel            <= '1'; --ACC0: X"FFFF"
+        alu0_select            <= "0101"; -- ADD
+        alu1_select            <= "0101"; -- ADD
+        acc0_write_en          <= '0';
+        acc1_write_en          <= '0'; -- NO WRITE FOR FORCED OVERFLOW
+        rf_mode_sel            <= '1'; --SIMD
+        rf_address_sel         <= "011"; -- SHOULD BE FFFF AND CAUSE OVERFLOW
+        WAIT FOR clk_period;
+        ASSERT (alu1_overflow ='1' AND alu0_overflow = '1') 
+                REPORT "Mismatch in expected OVERFLOW value !" 
+                SEVERITY ERROR;
+
+    -- TEST 3: STORING ALU OUTPUT 
+        -- change rf outputs, load acc0 
+        immediate_data_val     <= X"1234";
+        alu_mux_sel            <= '1'; --ACC0: X"FFFF"
+        alu0_select            <= "0000"; -- ADD
+        alu1_select            <= "0000"; -- ADD
+        acc0_write_en          <= '1';
+        acc1_write_en          <= '0'; 
+        rf_mode_sel            <= '0'; 
+        rf_address_sel         <= "000"; --R0: SHOULD BE X"1111" 
+        WAIT FOR clk_period;
+        -- store alu operation 
+        input_mux_sel          <= "00"; -- alu0
+        immediate_data_val     <= X"1234";
+        alu_mux_sel            <= '1'; --ACC0: X"1234"
+        alu0_select            <= "1001"; -- AND
+        alu1_select            <= "1001"; -- AND
+        acc0_write_en          <= '1';
+        acc1_write_en          <= '0'; 
+        rf_mode_sel            <= '0'; 
+        rf_address_sel         <= "000"; --R0: SHOULD BE X"1111"
+        WAIT FOR clk_period;
+        ASSERT (output_buffer =(X"1234" AND X"1111")) 
+                REPORT "Mismatch in expected output value! (test 3)" 
+                SEVERITY ERROR;
+
+    -- TEST 4: STORE AND DISPLAY ACC1
+        -- COMPUTE NOT ACC0 AND STORE IN ACC1
+        input_mux_sel          <= "00"; -- alu0
+        alu_mux_sel            <= '1'; --ACC0: X"1111"
+        alu0_select            <= "1100"; -- not b
+        alu1_select            <= "1100"; -- not b
+        acc0_write_en          <= '0';
+        acc1_write_en          <= '1';  
+        rf_mode_sel            <= '0'; 
+        rf_address_sel         <= "010"; --R2: SHOULD BE X"4444"
+        -- STORE ACC1 IN REG6
+        WAIT FOR clk_period;
+        input_mux_sel          <= "01"; -- rf0 - premptive
+        alu_mux_sel            <= '1'; --ACC0: X"1111"
+        acc_mux_sel            <= '1'; -- ACC1
+        alu0_select            <= "0000"; -- not b
+        alu1_select            <= "0000"; -- not b
+        acc0_write_en          <= '0';
+        acc1_write_en          <= '0'; 
+        rf_write_en            <= '1';  
+        rf_mode_sel            <= '1'; -- SIMD
+        rf_address_sel         <= "010"; --R2, R6: SHOULD BE X"4444"
+        -- UPDATER REG OUTS
+        WAIT FOR clk_period;
+        input_mux_sel          <= "01"; -- rf0 - premptive
+        alu_mux_sel            <= '1'; --ACC0: X"1111"
+        acc_mux_sel            <= '1'; -- ACC1
+        alu0_select            <= "0000"; 
+        alu1_select            <= "0000"; 
+        acc0_write_en          <= '0';
+        acc1_write_en          <= '0'; 
+        rf_write_en            <= '0';  
+        rf_mode_sel            <= '0'; 
+        rf_address_sel         <= "110"; --R6
+        WAIT FOR clk_period;
+        -- STORE UPDATED REG OUTS
+        input_mux_sel          <= "01"; -- rf0 - premptive
+        alu_mux_sel            <= '1'; --ACC0: X"1111"
+        acc_mux_sel            <= '1'; -- ACC1
+        alu0_select            <= "0000"; 
+        alu1_select            <= "0000"; 
+        acc0_write_en          <= '1';
+        acc1_write_en          <= '0'; 
+        rf_write_en            <= '0';  
+        rf_mode_sel            <= '0'; 
+        rf_address_sel         <= "110"; --R6:
+        WAIT FOR clk_period;
+        ASSERT (output_buffer = NOT X"1111")
+                REPORT "Mismatch in expected output value! (test 4)" 
+                SEVERITY ERROR;
+                
+        reset <= '1';
         WAIT;
+
     END PROCESS;
 
 END behavior;
